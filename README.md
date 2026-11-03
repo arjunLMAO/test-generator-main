@@ -6,7 +6,8 @@ A full-stack **computer-based testing (CBT) platform** built around **5,263 veri
 
 Generate custom tests, simulate the examination environment, analyze mistakes, and track performance—all within a single platform.
 
-<img width="1280" height="683" alt="Screenshot 2026-10-08 at 13 57 58" src="https://github.com/user-attachments/assets/81e49491-6144-4156-a2bd-a4563702734d" />
+<img width="1274" height="682" alt="Screenshot 2026-11-04 at 01 00 10" src="https://github.com/user-attachments/assets/538f97c2-89be-42e2-a191-f1e3f2db4fad" />
+
 
 
 ## Features
@@ -22,7 +23,8 @@ Generate custom tests, simulate the examination environment, analyze mistakes, a
 * **Performance Logging** — Record test data for future performance analysis.
 * **Reduced Repetition** — Question-history-aware test generation helps minimize repeated questions across tests.
 
-  <img width="1280" height="685" alt="Screenshot 2026-10-08 at 13 58 33" src="https://github.com/user-attachments/assets/8b7ac1fc-7265-4c0b-b07e-eebd34db6bc9" />
+<img width="1104" height="613" alt="Screenshot 2026-11-04 at 01 00 28" src="https://github.com/user-attachments/assets/e05d503d-c060-4369-9c8e-6b08335bf98b" />
+
 
 
 ## Question Bank
@@ -55,6 +57,9 @@ These metrics provide a high-level overview of examination performance.
 
 > **Note:** Percentile estimates are not official JEE percentiles. An estimated percentile should not be interpreted as an actual NTA result unless it is derived from a validated, representative dataset and the relevant examination methodology.
 
+<img width="1280" height="679" alt="Screenshot 2026-11-04 at 01 00 52" src="https://github.com/user-attachments/assets/9adb45c7-3ce1-40ae-83d1-697de28227a6" />
+
+
 ### Subject-Level Performance
 
 Performance can be examined separately across **Physics, Chemistry, and Mathematics**.
@@ -66,6 +71,9 @@ This helps distinguish between an overall score that is limited by one weaker su
 Where supported, reports separate MCQ and numerical-question performance.
 
 This can help identify whether performance differences arise from conceptual mistakes, numerical execution, or differences in performance between question formats.
+
+<img width="1280" height="679" alt="Screenshot 2026-11-04 at 01 01 02" src="https://github.com/user-attachments/assets/09978e08-9135-413f-8bbd-4a71daf38339" />
+
 
 ### Time Analytics
 
@@ -100,6 +108,9 @@ A typical revision cycle is:
 **Complete a test → Review the diagnostic report → Identify incorrect and skipped questions → Generate a mistake retest → Attempt the selected questions again → Reassess understanding**
 
 This transforms examination results into a reusable source of revision material.
+
+<img width="1280" height="680" alt="Screenshot 2026-11-04 at 01 01 14" src="https://github.com/user-attachments/assets/17b279ba-fbd9-4742-8827-e92bd6e40d55" />
+
 
 ## Workflow
 
