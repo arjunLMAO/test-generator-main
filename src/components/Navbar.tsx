@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, Play, Clock, Sun, Moon } from 'lucide-react';
 
-export type ActiveNavTab = 'dashboard' | 'chapters' | 'analytics' | 'history' | 'mastery';
+export type ActiveNavTab = 'dashboard' | 'chapters' | 'analytics' | 'history' | 'mastery' | 'recall';
 
 interface NavbarProps {
   activeTab: ActiveNavTab;
@@ -30,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'analytics', label: 'Analytics' },
     { id: 'history', label: 'History' },
     { id: 'mastery', label: 'Mastery' },
+    { id: 'recall', label: 'Active Recall' },
   ];
 
   const handleNavClick = (tabId: ActiveNavTab) => {

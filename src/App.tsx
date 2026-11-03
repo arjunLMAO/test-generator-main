@@ -4,6 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActiveRecallView } from './components/ActiveRecallView';
 import { AnalyticsDashboardView } from './components/AnalyticsDashboardView';
 import { ChapterMasteryView } from './components/ChapterMasteryView';
 import { ChapterSelectorView } from './components/ChapterSelectorView';
@@ -44,7 +45,8 @@ type ViewScreen =
   | 'results'
   | 'analytics'
   | 'history'
-  | 'mastery';
+  | 'mastery'
+  | 'recall';
 
 interface OverviewPendingConfig {
   mode: TestMode;
@@ -931,6 +933,7 @@ export default function App() {
           <ChapterMasteryView
             diagnostics={diagnostics}
             historyMap={historyMap}
+            reports={reports}
             onPracticeChapter={(subject, chapter) => {
               setChapterPreset({ subject, chapter });
               setCurrentView('chapters');
@@ -941,6 +944,19 @@ export default function App() {
               if (sub) setChapterPreset({ subject: sub });
               setCurrentView('chapters');
             }}
+          />
+        )}
+
+        {currentView === 'recall' && (
+          <ActiveRecallView
+            historyMap={historyMap}
+            questionsById={questionsById}
+            onStartFullTest={handleOpenFullSyllabusOverview}
+            onOpenChapterSelector={(sub) => {
+              if (sub) setChapterPreset({ subject: sub });
+              setCurrentView('chapters');
+            }}
+            onOpenDashboard={() => setCurrentView('dashboard')}
           />
         )}
       </div>

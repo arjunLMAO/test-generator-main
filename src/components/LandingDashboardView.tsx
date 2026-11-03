@@ -207,7 +207,7 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
                   )}
                 </div>
               </div>
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 {analytics.questionsNeedingReviewCount > 0 ? (
                   <button
                     type="button"
@@ -225,6 +225,14 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
                     No Mistakes to Retest
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('recall')}
+                  className="w-full py-1.5 px-3 text-[11px] font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors cursor-pointer flex items-center justify-center gap-1"
+                >
+                  <span>Memorize via Active Recall Flashcards →</span>
+                </button>
               </div>
             </div>
           </div>
