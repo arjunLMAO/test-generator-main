@@ -39,8 +39,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-[#121214] border-b border-neutral-200 dark:border-neutral-800 transition-colors">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-[#121214] border-b border-neutral-200 dark:border-neutral-800 transition-colors">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4 w-full">
         {/* LEFT: Typographic Wordmark */}
         <div className="shrink-0 flex items-center">
           <button
@@ -52,9 +52,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* CENTRE: Desktop Navigation Links */}
+        {/* CENTRE: Desktop Navigation Links (Visible on lg and larger) */}
         <nav
-          className="hidden md:flex items-center gap-1 text-sm font-medium"
+          className="hidden lg:flex items-center gap-1 text-sm font-medium"
           aria-label="Main Navigation"
         >
           {navItems.map((item) => {
@@ -104,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onResumeTest}
-              className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-neutral-950 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+              className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-neutral-950 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 shrink-0"
             >
               <Clock className="w-3.5 h-3.5" />
               <span>Resume Test</span>
@@ -113,28 +113,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onStartFullTest}
-              className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-neutral-950 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+              className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-neutral-950 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 shrink-0"
             >
               <Play className="w-3 h-3 fill-current" />
               <span>Start Test</span>
             </button>
           )}
 
-          {/* Mobile Menu Hamburger */}
+          {/* Mobile/Tablet Menu Hamburger (Visible below lg) */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="md:hidden p-1.5 rounded text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 cursor-pointer"
+            className="lg:hidden p-1.5 rounded text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 cursor-pointer"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile/Tablet Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] px-4 py-3 space-y-2 shadow-sm">
+        <div className="lg:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] px-4 py-3 space-y-2 shadow-sm">
           <div className="space-y-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;

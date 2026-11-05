@@ -797,7 +797,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 selection:bg-neutral-200 dark:selection:bg-neutral-800 transition-colors">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 selection:bg-neutral-200 dark:selection:bg-neutral-800 transition-colors overflow-x-hidden w-full max-w-full">
       {/* Show Top Navbar on all screens EXCEPT during an active examination */}
       {currentView !== 'exam' && (
         <Navbar
@@ -823,6 +823,8 @@ export default function App() {
             analytics={analyticsSummary}
             activeTest={activeTest}
             recentReport={reports[0] || null}
+            reports={reports}
+            historyMap={historyMap}
             remainingActiveTestSeconds={remainingSeconds}
             onStartFullSyllabusOverview={handleOpenFullSyllabusOverview}
             onOpenChapterSelector={(presetSubject, presetChapter) => {

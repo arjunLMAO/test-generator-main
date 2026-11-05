@@ -102,8 +102,8 @@ export const TestResultsView: React.FC<TestResultsViewProps> = ({
   const incorrectQuestions = report.questionResults.filter((q) => q.result === 'incorrect');
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 py-8 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 py-8 px-4 sm:px-6 overflow-x-hidden w-full max-w-full">
+      <div className="max-w-5xl mx-auto space-y-8 min-w-0 w-full">
         {/* Navigation & Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200 dark:border-neutral-800">
           <div className="space-y-1">

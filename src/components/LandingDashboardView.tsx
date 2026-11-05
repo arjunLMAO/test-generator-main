@@ -1,9 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, Clock, Search, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Search,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
 import { DashboardAnalyticsSummary } from '../services/LongTermAnalyticsService';
+import { StudyStreakInfo, StudyStreakService } from '../services/StudyStreakService';
 import {
   GeneratedTest,
   QuestionBankDiagnostics,
+  QuestionHistoryRecord,
   SubjectName,
   TestResultReport,
 } from '../types/jee';
@@ -14,6 +27,8 @@ interface LandingDashboardViewProps {
   analytics: DashboardAnalyticsSummary;
   activeTest: GeneratedTest | null;
   recentReport: TestResultReport | null;
+  reports?: TestResultReport[];
+  historyMap?: Record<string, QuestionHistoryRecord>;
   remainingActiveTestSeconds: number;
   onStartFullSyllabusOverview: () => void;
   onOpenChapterSelector: (presetSubject?: SubjectName, presetChapter?: string) => void;
@@ -40,6 +55,8 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
   analytics,
   activeTest,
   recentReport,
+  reports = [],
+  historyMap = {},
   remainingActiveTestSeconds,
   onStartFullSyllabusOverview,
   onOpenChapterSelector,
@@ -50,6 +67,10 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
   onNavigateTab,
 }) => {
   const totalChapters = diagnostics.chapterInventories.length;
+
+  const streakInfo: StudyStreakInfo = useMemo(() => {
+    return StudyStreakService.calculateStreak(reports, historyMap);
+  }, [reports, historyMap]);
 
   const [chapterFilterTab, setChapterFilterTab] = useState<'ALL' | SubjectName>('ALL');
   const [chapterSearch, setChapterSearch] = useState('');
@@ -69,8 +90,8 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
   }, [diagnostics.chapterInventories, chapterFilterTab, chapterSearch]);
 
   return (
-    <div className="bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 min-h-screen transition-colors">
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+    <div className="bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 min-h-screen transition-colors overflow-x-hidden w-full max-w-full">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10 min-w-0 w-full">
         {/* Active Test Recovery Banner */}
         {activeTest && (
           <div className="bg-neutral-50 dark:bg-[#18181B] border border-neutral-300 dark:border-neutral-700 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -117,6 +138,165 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
             Prepare a test, practise selected chapters, or revisit your mistakes.
           </p>
         </div>
+
+        {/* Daily Study Streak Indicator */}
+        <section
+          aria-label="Daily Study Streak"
+          className="bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 transition-colors"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* Left: Streak Counter & Status & Motivational Message */}
+            <div className="space-y-3 max-w-xl">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-colors ${
+                    streakInfo.streakStatus === 'maintained'
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400'
+                      : streakInfo.streakStatus === 'at_risk'
+                      ? 'bg-amber-500/10 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 animate-pulse'
+                      : streakInfo.streakStatus === 'broken'
+                      ? 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400'
+                      : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500'
+                  }`}
+                >
+                  <Flame
+                    className={`w-5 h-5 ${
+                      streakInfo.streakStatus === 'maintained' || streakInfo.streakStatus === 'at_risk'
+                        ? 'fill-current'
+                        : ''
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl font-bold font-mono tracking-tight text-neutral-950 dark:text-white">
+                      {streakInfo.currentStreak} Day{streakInfo.currentStreak === 1 ? '' : 's'}
+                    </span>
+
+                    {/* Status Badge */}
+                    {streakInfo.streakStatus === 'maintained' && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>Active today</span>
+                      </span>
+                    )}
+
+                    {streakInfo.streakStatus === 'at_risk' && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">
+                        <AlertCircle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                        <span>At risk · Test today</span>
+                      </span>
+                    )}
+
+                    {streakInfo.streakStatus === 'broken' && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">
+                        <span>Streak reset</span>
+                      </span>
+                    )}
+
+                    {streakInfo.streakStatus === 'unstarted' && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-200 dark:border-neutral-700">
+                        <span>Start your streak</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                    Daily Study Streak
+                  </div>
+                </div>
+              </div>
+
+              {/* Motivational Message Block */}
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  {streakInfo.motivationalMessage}
+                </p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  {streakInfo.subMessage}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: 7-Day Activity Strip & History Metrics */}
+            <div className="space-y-3 shrink-0">
+              {/* 7-Day Calendar Strip */}
+              <div>
+                <div className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400 mb-2 flex items-center justify-between">
+                  <span>Last 7 Days</span>
+                  {streakInfo.lastActiveDateFormatted && (
+                    <span>Last active: {streakInfo.lastActiveDateFormatted}</span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+                  {streakInfo.weeklyActivity.map((day) => {
+                    return (
+                      <div
+                        key={day.dateStr}
+                        className={`flex flex-col items-center justify-center p-2 rounded border text-center transition-all min-w-[38px] sm:min-w-[44px] ${
+                          day.isToday
+                            ? 'border-neutral-900 dark:border-white bg-white dark:bg-[#121214] font-semibold ring-1 ring-neutral-900/10 dark:ring-white/10'
+                            : 'border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-[#121214]/60'
+                        }`}
+                      >
+                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono uppercase">
+                          {day.dayLabel}
+                        </span>
+                        <span className="text-xs font-mono font-medium text-neutral-900 dark:text-white my-0.5">
+                          {day.dateNumber}
+                        </span>
+
+                        <div className="mt-1 flex items-center justify-center">
+                          {day.hasActivity ? (
+                            <span
+                              title={`Test activity completed (${day.testsCount} attempt${day.testsCount > 1 ? 's' : ''})`}
+                              className="w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald-400 inline-block shadow-xs"
+                            />
+                          ) : day.isToday ? (
+                            <span
+                              title="Pending test activity today"
+                              className="w-2.5 h-2.5 rounded-full border border-dashed border-amber-600 dark:border-amber-400 inline-block"
+                            />
+                          ) : (
+                            <span
+                              title="No test activity"
+                              className="w-1.5 h-1.5 rounded-full bg-neutral-300 dark:bg-neutral-700 inline-block"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom Quick Stats & CTA */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-neutral-200/80 dark:border-neutral-800/80 text-[11px] font-mono text-neutral-500 dark:text-neutral-400">
+                <div className="flex items-center gap-3">
+                  <span>
+                    Best Streak: <strong className="text-neutral-900 dark:text-white font-bold">{streakInfo.bestStreak}d</strong>
+                  </span>
+                  <span>·</span>
+                  <span>
+                    Total Active: <strong className="text-neutral-900 dark:text-white font-bold">{streakInfo.totalActiveDays}d</strong>
+                  </span>
+                </div>
+
+                {!streakInfo.testedToday && (
+                  <button
+                    type="button"
+                    onClick={onStartFullSyllabusOverview}
+                    className="text-xs font-semibold text-neutral-900 dark:text-white hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <span>{streakInfo.streakStatus === 'at_risk' ? 'Maintain Streak →' : 'Test Today →'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Three Core Test Actions Grid */}
         <section aria-label="Test Options">

@@ -219,8 +219,8 @@ export const ChapterSelectorView: React.FC<ChapterSelectorViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 py-8 px-4 sm:px-6 transition-colors">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 py-8 px-4 sm:px-6 transition-colors overflow-x-hidden w-full max-w-full">
+      <div className="max-w-6xl mx-auto space-y-8 min-w-0 w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200 dark:border-neutral-800 pb-5">
           <div className="space-y-1">

@@ -263,7 +263,7 @@ export const ExamWorkspaceView: React.FC<ExamWorkspaceViewProps> = ({
   }, [test.questions, test.responses]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors">
+    <div className="min-h-screen bg-white dark:bg-[#0F0F11] text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors overflow-x-hidden w-full max-w-full">
       {/* Top Examination Bar */}
       <header className="sticky top-0 z-30 bg-white dark:bg-[#121214] border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
