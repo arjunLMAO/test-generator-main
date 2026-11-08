@@ -10,7 +10,9 @@ import { ChapterMasteryView } from './components/ChapterMasteryView';
 import { ChapterSelectorView } from './components/ChapterSelectorView';
 import { ExamWorkspaceView } from './components/ExamWorkspaceView';
 import { LandingDashboardView } from './components/LandingDashboardView';
+import { MistakeNotebookView } from './components/MistakeNotebookView';
 import { ActiveNavTab, Navbar } from './components/Navbar';
+import { TestCalendarView } from './components/TestCalendarView';
 import { TestHistoryView } from './components/TestHistoryView';
 import { TestOverviewModal } from './components/TestOverviewModal';
 import { TestResultsView } from './components/TestResultsView';
@@ -46,7 +48,9 @@ type ViewScreen =
   | 'analytics'
   | 'history'
   | 'mastery'
-  | 'recall';
+  | 'recall'
+  | 'calendar'
+  | 'notebook';
 
 interface OverviewPendingConfig {
   mode: TestMode;
@@ -347,27 +351,40 @@ export default function App() {
     [persistActiveTestState]
   );
 
-  // Submit active test (Idempotent, server-scored)
+  // Submit active test (Idempotent, server-scored with instantaneous fallback)
   const isSubmittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmitTest = useCallback(
     async (autoSubmitted = false) => {
       if (!activeTest || isSubmittingRef.current) return;
       isSubmittingRef.current = true;
+      setIsSubmitting(true);
 
       const testToSubmit = activeTest;
       try {
-        const resp = await fetch(`/api/tests/${testToSubmit.id}/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: USER_ID,
-            testSnapshot: testToSubmit,
-            autoSubmitted,
-          }),
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-        if (resp.ok) {
+        let resp: Response | null = null;
+        try {
+          resp = await fetch(`/api/tests/${testToSubmit.id}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: USER_ID,
+              testSnapshot: testToSubmit,
+              autoSubmitted,
+            }),
+            signal: controller.signal,
+          });
+        } catch {
+          resp = null;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        if (resp && resp.ok) {
           const data = await resp.json();
           const newReport: TestResultReport = data.report;
           const newHistory: Record<string, QuestionHistoryRecord> = data.historyMap;
@@ -386,7 +403,7 @@ export default function App() {
           setSelectedReportId(newReport.testId);
           setCurrentView('results');
         } else {
-          // Local authoritative fallback if server unreachable
+          // Local authoritative fallback if server unreachable or timeout
           const { report, updatedHistoryMap } =
             ScoringAndAnalyticsService.evaluateAndRecordTest(
               testToSubmit,
@@ -408,6 +425,7 @@ export default function App() {
         }
       } finally {
         isSubmittingRef.current = false;
+        setIsSubmitting(false);
       }
     },
     [activeTest, clientEngine, historyMap]
@@ -873,6 +891,7 @@ export default function App() {
             onUpdateResponse={handleUpdateResponse}
             onNavigateQuestion={handleNavigateQuestion}
             onSubmitTest={handleSubmitTest}
+            isSubmitting={isSubmitting}
             theme={theme}
             onToggleTheme={handleToggleTheme}
           />
@@ -899,6 +918,7 @@ export default function App() {
                 questionIds,
               })
             }
+            onOpenMistakeNotebook={() => setCurrentView('notebook')}
           />
         )}
 
@@ -959,6 +979,51 @@ export default function App() {
               setCurrentView('chapters');
             }}
             onOpenDashboard={() => setCurrentView('dashboard')}
+          />
+        )}
+
+        {currentView === 'calendar' && (
+          <TestCalendarView
+            reports={reports}
+            historyMap={historyMap}
+            onOpenReport={(testId) => {
+              setSelectedReportId(testId);
+              setCurrentView('results');
+            }}
+            onStartFullTest={handleOpenFullSyllabusOverview}
+            onPracticeChapter={(presetSubject, presetChapter) => {
+              setChapterPreset({ subject: presetSubject, chapter: presetChapter });
+              setCurrentView('chapters');
+            }}
+            onRetestMistakes={(sub, chap, qIds) =>
+              startMistakeRetest({
+                subject: sub,
+                chapter: chap,
+                questionIds: qIds,
+              })
+            }
+            onNavigateToRecall={() => setCurrentView('recall')}
+          />
+        )}
+
+        {currentView === 'notebook' && (
+          <MistakeNotebookView
+            historyMap={historyMap}
+            questionsById={questionsById}
+            reports={reports}
+            onRetestMistakes={(sub, chap, qIds) =>
+              startMistakeRetest({
+                subject: sub,
+                chapter: chap,
+                questionIds: qIds,
+              })
+            }
+            onOpenChapterSelector={(presetSubject, presetChapter) => {
+              setChapterPreset({ subject: presetSubject, chapter: presetChapter });
+              setCurrentView('chapters');
+            }}
+            onStartFullTest={handleOpenFullSyllabusOverview}
+            theme={theme}
           />
         )}
       </div>

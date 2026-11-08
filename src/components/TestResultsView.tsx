@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   CheckCircle2,
   Clock,
   Hourglass,
@@ -21,6 +22,7 @@ interface TestResultsViewProps {
   onBackToDashboard: () => void;
   onPracticeWeakChapters: (subject: SubjectName, chapters: string[]) => void;
   onRetestMistakes: (sub?: SubjectName, chap?: string, questionIds?: string[]) => void;
+  onOpenMistakeNotebook?: () => void;
 }
 
 function formatDuration(seconds: number): string {
@@ -39,6 +41,7 @@ export const TestResultsView: React.FC<TestResultsViewProps> = ({
   onBackToDashboard,
   onPracticeWeakChapters,
   onRetestMistakes,
+  onOpenMistakeNotebook,
 }) => {
   const [filterResult, setFilterResult] = useState<'all' | 'incorrect' | 'correct' | 'unattempted'>('all');
   const [filterSubject, setFilterSubject] = useState<string>('all');
@@ -123,7 +126,17 @@ export const TestResultsView: React.FC<TestResultsViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {incorrectQuestions.length > 0 && onOpenMistakeNotebook && (
+              <button
+                type="button"
+                onClick={onOpenMistakeNotebook}
+                className="px-3.5 py-2 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-medium rounded transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
+                <span>Mistake Notebook</span>
+              </button>
+            )}
             {incorrectQuestions.length > 0 && (
               <button
                 type="button"

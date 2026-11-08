@@ -284,15 +284,40 @@ export const LandingDashboardView: React.FC<LandingDashboardViewProps> = ({
                   </span>
                 </div>
 
-                {!streakInfo.testedToday && (
+                <div className="flex flex-wrap items-center gap-2.5">
                   <button
                     type="button"
-                    onClick={onStartFullSyllabusOverview}
-                    className="text-xs font-semibold text-neutral-900 dark:text-white hover:underline cursor-pointer flex items-center gap-1"
+                    onClick={() => onNavigateTab('notebook')}
+                    className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white hover:underline cursor-pointer flex items-center gap-1.5"
                   >
-                    <span>{streakInfo.streakStatus === 'at_risk' ? 'Maintain Streak →' : 'Test Today →'}</span>
+                    <BookOpen className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
+                    <span>Mistake Notebook</span>
                   </button>
-                )}
+
+                  <span>·</span>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigateTab('calendar')}
+                    className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white hover:underline cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
+                    <span>View Calendar</span>
+                  </button>
+
+                  {!streakInfo.testedToday && (
+                    <>
+                      <span>·</span>
+                      <button
+                        type="button"
+                        onClick={onStartFullSyllabusOverview}
+                        className="text-xs font-semibold text-neutral-900 dark:text-white hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        <span>{streakInfo.streakStatus === 'at_risk' ? 'Maintain Streak →' : 'Test Today →'}</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>

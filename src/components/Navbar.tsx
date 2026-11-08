@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { Menu, X, Play, Clock, Sun, Moon } from 'lucide-react';
 
-export type ActiveNavTab = 'dashboard' | 'chapters' | 'analytics' | 'history' | 'mastery' | 'recall';
+export type ActiveNavTab =
+  | 'dashboard'
+  | 'chapters'
+  | 'mastery'
+  | 'recall'
+  | 'notebook'
+  | 'calendar'
+  | 'history'
+  | 'analytics';
 
 interface NavbarProps {
   activeTab: ActiveNavTab;
@@ -27,10 +35,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems: Array<{ id: ActiveNavTab; label: string }> = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'chapters', label: 'Select Chapters' },
-    { id: 'analytics', label: 'Analytics' },
-    { id: 'history', label: 'History' },
     { id: 'mastery', label: 'Mastery' },
     { id: 'recall', label: 'Active Recall' },
+    { id: 'notebook', label: 'Mistake Notebook' },
+    { id: 'calendar', label: 'Calendar' },
+    { id: 'history', label: 'History' },
+    { id: 'analytics', label: 'Analytics' },
   ];
 
   const handleNavClick = (tabId: ActiveNavTab) => {
@@ -40,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white dark:bg-[#121214] border-b border-neutral-200 dark:border-neutral-800 transition-colors">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4 w-full">
         {/* LEFT: Typographic Wordmark */}
         <div className="shrink-0 flex items-center">
           <button

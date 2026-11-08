@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Loader2,
   Moon,
   Send,
   Sun,
@@ -34,6 +35,7 @@ export interface ExamWorkspaceViewProps {
   ) => void;
   onNavigateQuestion: (targetOrder: number) => void;
   onSubmitTest: (autoSubmitted: boolean) => void;
+  isSubmitting?: boolean;
   theme?: 'light' | 'dark';
   onToggleTheme?: () => void;
 }
@@ -56,13 +58,27 @@ export const ExamWorkspaceView: React.FC<ExamWorkspaceViewProps> = ({
   onUpdateResponse,
   onNavigateQuestion,
   onSubmitTest,
+  isSubmitting = false,
   theme,
   onToggleTheme,
 }) => {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
   const [integerInput, setIntegerInput] = useState('');
   const [tabSwitchCount, setTabSwitchCount] = useState<number>(test.tabSwitchCount || 0);
   const [lastTabSwitchWarning, setLastTabSwitchWarning] = useState<string | null>(null);
+
+  // Immediate escape key listener to revert back to test
+  useEffect(() => {
+    if (!showSubmitModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting && !isLocalSubmitting) {
+        setShowSubmitModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSubmitModal, isSubmitting, isLocalSubmitting]);
 
   // Tab switch detector
   useEffect(() => {
@@ -334,11 +350,21 @@ export const ExamWorkspaceView: React.FC<ExamWorkspaceViewProps> = ({
             {/* Submit Button */}
             <button
               type="button"
+              disabled={isSubmitting || isLocalSubmitting}
               onClick={() => setShowSubmitModal(true)}
-              className="px-3.5 py-1.5 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-medium rounded transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-medium rounded transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send className="w-3 h-3" />
-              <span>Submit Test</span>
+              {isSubmitting || isLocalSubmitting ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3 h-3" />
+                  <span>Submit Test</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -656,80 +682,108 @@ export const ExamWorkspaceView: React.FC<ExamWorkspaceViewProps> = ({
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
+          onClick={(e) => {
+            // Revert immediately back to test if clicking backdrop
+            if (e.target === e.currentTarget && !isSubmitting && !isLocalSubmitting) {
+              setShowSubmitModal(false);
+            }
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
         >
-          <div className="bg-white dark:bg-[#18181B] border border-neutral-200 dark:border-neutral-800 rounded-lg max-w-md w-full p-6 shadow-xl space-y-4 text-neutral-900 dark:text-white">
+          <div className="bg-white dark:bg-[#18181B] border border-neutral-200 dark:border-neutral-800 rounded-lg max-w-md w-full p-6 shadow-xl space-y-4 text-neutral-900 dark:text-white transition-all">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-neutral-950 dark:text-white">Confirm Test Submission</h3>
-              <button
-                type="button"
-                onClick={() => setShowSubmitModal(false)}
-                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              Are you sure you want to finish your test? Review your attempt summary below:
-            </p>
-
-            <div className="bg-neutral-50 dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded p-4 grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-neutral-500 dark:text-neutral-400">Total Questions:</span>
-                <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">{stats.total}</span>
-              </div>
-              <div>
-                <span className="text-neutral-500 dark:text-neutral-400">Attempted:</span>
-                <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
-                  {stats.answered + stats.answeredAndMarked}
-                </span>
-              </div>
-              <div>
-                <span className="text-neutral-500 dark:text-neutral-400">Unattempted:</span>
-                <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
-                  {stats.notAnswered + stats.marked}
-                </span>
-              </div>
-              <div>
-                <span className="text-neutral-500 dark:text-neutral-400">Marked for Review:</span>
-                <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
-                  {stats.marked + stats.answeredAndMarked}
-                </span>
-              </div>
-              {test.targetScore !== undefined && test.targetScore > 0 && (
-                <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Target Goal:</span>
-                  <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">{test.targetScore} pts</span>
-                </div>
+              <h3 className="text-base font-semibold text-neutral-950 dark:text-white">
+                {isSubmitting || isLocalSubmitting ? 'Submitting & Evaluating Test' : 'Confirm Test Submission'}
+              </h3>
+              {!isSubmitting && !isLocalSubmitting && (
+                <button
+                  type="button"
+                  onClick={() => setShowSubmitModal(false)}
+                  title="Resume Test (Esc)"
+                  aria-label="Resume test"
+                  className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 cursor-pointer p-1 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               )}
-              <div>
-                <span className="text-neutral-500 dark:text-neutral-400">Tab Switches:</span>
-                <span className={`font-mono font-semibold ml-1.5 ${tabSwitchCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-900 dark:text-white'}`}>
-                  {tabSwitchCount} {tabSwitchCount > 0 ? '(logged)' : '(clean)'}
-                </span>
-              </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowSubmitModal(false)}
-                className="px-4 py-2 text-xs font-medium border border-neutral-300 dark:border-neutral-700 rounded hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 cursor-pointer"
-              >
-                Resume Test
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSubmitModal(false);
-                  onSubmitTest(false);
-                }}
-                className="px-4 py-2 text-xs font-medium bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 rounded hover:bg-neutral-800 dark:hover:bg-neutral-200 cursor-pointer"
-              >
-                Submit Now
-              </button>
-            </div>
+            {isSubmitting || isLocalSubmitting ? (
+              <div className="py-8 flex flex-col items-center justify-center space-y-3 text-center">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-900 dark:text-white" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-neutral-950 dark:text-white">
+                    Evaluating JEE Test Responses
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs leading-relaxed">
+                    Scoring answers against official key, recording efficiency metrics, and preparing your report...
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                  Are you sure you want to finish your test? Review your attempt summary below:
+                </p>
+
+                <div className="bg-neutral-50 dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded p-4 grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Questions:</span>
+                    <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">{stats.total}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-500 dark:text-neutral-400">Attempted:</span>
+                    <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
+                      {stats.answered + stats.answeredAndMarked}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-500 dark:text-neutral-400">Unattempted:</span>
+                    <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
+                      {stats.notAnswered + stats.marked}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-500 dark:text-neutral-400">Marked for Review:</span>
+                    <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">
+                      {stats.marked + stats.answeredAndMarked}
+                    </span>
+                  </div>
+                  {test.targetScore !== undefined && test.targetScore > 0 && (
+                    <div>
+                      <span className="text-neutral-500 dark:text-neutral-400">Target Goal:</span>
+                      <span className="font-mono font-semibold text-neutral-900 dark:text-white ml-1.5">{test.targetScore} pts</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-neutral-500 dark:text-neutral-400">Tab Switches:</span>
+                    <span className={`font-mono font-semibold ml-1.5 ${tabSwitchCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-900 dark:text-white'}`}>
+                      {tabSwitchCount} {tabSwitchCount > 0 ? '(logged)' : '(clean)'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSubmitModal(false)}
+                    className="px-4 py-2 text-xs font-medium border border-neutral-300 dark:border-neutral-700 rounded hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 cursor-pointer transition-colors"
+                  >
+                    Resume Test
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLocalSubmitting(true);
+                      onSubmitTest(false);
+                    }}
+                    className="px-4 py-2 text-xs font-medium bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 rounded hover:bg-neutral-800 dark:hover:bg-neutral-200 cursor-pointer transition-colors flex items-center gap-1.5"
+                  >
+                    <span>Submit Now</span>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
